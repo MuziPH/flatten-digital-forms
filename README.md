@@ -1,0 +1,1 @@
+Utilizing Spring Cloud Function to streamline and flatten digital PDF documents. Achieved by using iText licensed library to remove xfa forms and flatten the PDF. The application is built using Spring Cloud Function and can be deployed as a serverless function on platforms like AWS Lambda.

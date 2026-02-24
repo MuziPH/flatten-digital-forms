@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: digital-pdf-flatten-xfa
+  cloud:
+    function:
+      definition: flattenXfaHandler
