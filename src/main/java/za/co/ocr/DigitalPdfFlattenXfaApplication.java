@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import za.co.ocr.model.EmailInfo;
 
 import java.util.function.Consumer;
 
@@ -16,7 +17,7 @@ public class DigitalPdfFlattenXfaApplication {
 	}
 
 	@Bean
-	public Consumer<String> flattenPDF() {
+	public Consumer<EmailInfo> flattenPDF() {
 		return request -> {
 			// Implement the logic to flatten the PDF here
 			log.info("Received request to flatten PDF {}: ", request);

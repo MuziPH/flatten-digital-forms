@@ -4,3 +4,7 @@ spring:
   cloud:
     function:
       definition: flattenXfaHandler
+
+aws:
+  sqs:
+    endpoint: ${AWS_SQS_URI}
