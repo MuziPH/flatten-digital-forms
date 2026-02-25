@@ -3,7 +3,12 @@ spring:
     name: digital-pdf-flatten-xfa
   cloud:
     function:
-      definition: flattenXfaHandler
+      definition: flattenPDF
+
+logging:
+  level:
+    root: INFO
+    za.co.ocr: DEBUG
 
 aws:
   sqs:
