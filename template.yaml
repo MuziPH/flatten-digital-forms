@@ -1,0 +1,19 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Runtime: java17
+    MemorySize: 512
+    Timeout: 30
+    Environment:
+      Variables:
+        SPRING_CLOUD_FUNCTION_DEFINITION: flattenPDF
+        AWS_SQS_URI: http://localhost:4566/000000000000/flatten-xfa-queue
+
+Resources:
+  FlattenXfaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest
+      CodeUri: target/digital-pdf-flatten-xfa-0.0.1-SNAPSHOT-aws.jar

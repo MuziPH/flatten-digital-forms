@@ -2,7 +2,7 @@ package za.co.ocr;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import za.co.ocr.model.EmailInfo;
+import za.co.ocr.model.OTTEmailInstruction;
 import za.co.ocr.model.LambdaEvent;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -59,18 +59,18 @@ public class SqsMessageParsingTest {
 
         // Parse the body as EmailInfo
         String bodyJson = record.getBody();
-        EmailInfo emailInfo = objectMapper.readValue(bodyJson, EmailInfo.class);
+        OTTEmailInstruction ottEmailInstruction = objectMapper.readValue(bodyJson, OTTEmailInstruction.class);
 
-        assertNotNull(emailInfo);
-        assertEquals("Muzi.Phage@standardbank.co.za", emailInfo.getSender());
-        assertEquals("Muzi.Phage@standardbank.co.za", emailInfo.getFrom());
-        assertEquals("Test Logos Icons", emailInfo.getSubject());
-        assertEquals("2026-02-25T10:30:59.303056300+02:00", emailInfo.getReceivedDateTime());
+        assertNotNull(ottEmailInstruction);
+        assertEquals("Muzi.Phage@standardbank.co.za", ottEmailInstruction.getSender());
+        assertEquals("Muzi.Phage@standardbank.co.za", ottEmailInstruction.getFrom());
+        assertEquals("Test Logos Icons", ottEmailInstruction.getSubject());
+        assertEquals("2026-02-25T10:30:59.303056300+02:00", ottEmailInstruction.getReceivedDateTime());
 
-        assertNotNull(emailInfo.getEmailAttachments());
-        assertEquals(1, emailInfo.getEmailAttachments().size());
+        assertNotNull(ottEmailInstruction.getEmailAttachments());
+        assertEquals(1, ottEmailInstruction.getEmailAttachments().size());
 
-        EmailInfo.Attachment attachment = emailInfo.getEmailAttachments().get(0);
+        OTTEmailInstruction.Attachment attachment = ottEmailInstruction.getEmailAttachments().get(0);
         assertEquals("ANGLOPLATINUM3.pdf", attachment.getAttachmentName());
         assertEquals("AAMkADA4MDI4YTUwLTU5NjktNDYwMy1hYTQ3LWQ4YTcwMjlkMmIwOABGAAAAAACPiChSOIJCR5adSN4LHk0HBwDPLbbQ1ky3SZbw_joY2ty_AAAAAAEMAAByPg9CqrUQSZlGHeTTJJhcAAAujQ8MAAA=/attachments/digital/ANGLOPLATINUM3.pdf",
                 attachment.getAttachmentS3Key());

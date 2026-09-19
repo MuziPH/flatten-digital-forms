@@ -1,0 +1,8 @@
+{
+  "Records": [
+    {
+      "messageId": "test-message-id-001",
+      "body": "{\"from\":\"sender@example.com\",\"sender\":\"sender@example.com\",\"subject\":\"Test Email\",\"receivedDateTime\":\"2024-01-01T10:00:00\",\"emailAttachments\":[]}"
+    }
+  ]
+}

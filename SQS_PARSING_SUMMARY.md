@@ -8,7 +8,7 @@
 **Changes:**
 - Added `@JsonProperty("Records")` annotation to explicitly map the JSON field name (AWS SQS uses capital "R")
 - The field name is `Records` (capital R) to match AWS SQS JSON format
-- Updated `Record.body` from `EmailInfo` object to `String` (as SQS body is a JSON string)
+- Updated `Record.body` from `OTTEmailInstruction` object to `String` (as SQS body is a JSON string)
 - Added complete SQS record fields:
   - `messageId`
   - `receiptHandle`
@@ -32,7 +32,7 @@
   1. Parse the entire input as `LambdaEvent`
   2. Iterate through each `Record` in the `Records` array
   3. Extract the `body` field (which is a JSON string)
-  4. Parse the `body` string as `EmailInfo` object
+  4. Parse the `body` string as `OTTEmailInstruction` object
   5. Process the EmailInfo and its attachments
 
 ### 3. Added Test

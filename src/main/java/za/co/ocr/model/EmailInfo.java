@@ -1,23 +1,19 @@
 package za.co.ocr.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-
-import java.util.List;
+import lombok.NoArgsConstructor;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 
 @Data
+@DynamoDbBean
+@NoArgsConstructor
+@AllArgsConstructor
 public class EmailInfo {
-    private String sender;
-    private String from;
-    private String subject;
-    private String receivedDateTime;
-    private List<Attachment> emailAttachments;
-    private String messageId;
+    private String emailReceiver;
+    private String emailSender;
+    private String emailSubject;
+    private String emailReceivedOn;
 
-    @Data
-    public static class Attachment {
-        private String attachmentName;
-        private String attachmentS3Key;
-        private Integer attachmentSize;
-        private String contentType;
-    }
 }
