@@ -7,6 +7,14 @@ import za.co.ocr.model.LambdaEvent;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Demonstrates how the application maps raw SQS JSON into Java objects.
+ *
+ * <p>This test is useful for beginners because it shows the full journey from
+ * a JSON event, to a {@link LambdaEvent}, and then to the nested email payload
+ * inside the message body. If this parsing works, the Lambda handler can safely
+ * focus on business logic instead of JSON handling.</p>
+ */
 public class SqsMessageParsingTest {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();

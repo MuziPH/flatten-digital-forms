@@ -1,0 +1,35 @@
+{
+  "Records": [
+    {
+      "messageId": "test-dynamodb-insert-001",
+      "receiptHandle": "test-receipt-handle-for-sam-local",
+      "body": "{\"from\":\"recipient@example.com\",\"sender\":\"sender@example.com\",\"subject\":\"SAM local DynamoDB insert test\",\"receivedDateTime\":\"2026-09-21T10:15:30Z\",\"messageId\":\"email-msg-001\",\"emailAttachments\":[]}",
+      "attributes": {
+        "ApproximateReceiveCount": "1",
+        "SentTimestamp": "1799988930000",
+        "SenderId": "sam-local-user",
+        "ApproximateFirstReceiveTimestamp": "1799988930000"
+      },
+      "messageAttributes": {
+        "JavaType": {
+          "stringValue": "za.co.cims.ocr.emailNotificationHandler.model.EmailInfo",
+          "stringListValues": [],
+          "binaryListValues": [],
+          "dataType": "String"
+        },
+        "contentType": {
+          "stringValue": "application/json",
+          "stringListValues": [],
+          "binaryListValues": [],
+          "dataType": "String"
+        }
+      },
+      "md5OfMessageAttributes": "test-message-attributes-md5",
+      "md5OfBody": "test-body-md5",
+      "eventSource": "aws:sqs",
+      "eventSourceARN": "arn:aws:sqs:af-south-1:123456789012:EmailInfoQueue",
+      "awsRegion": "af-south-1"
+    }
+  ]
+}
+

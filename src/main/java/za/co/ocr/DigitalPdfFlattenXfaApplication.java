@@ -8,18 +8,26 @@ import org.springframework.context.annotation.Bean;
 import za.co.ocr.model.EmailInfo;
 import za.co.ocr.model.LambdaEvent;
 import za.co.ocr.model.OTTEmailInstruction;
-import za.co.ocr.service.SQSService;
+import za.co.ocr.repository.EmailInfoRepository;
 
 import java.util.function.Consumer;
 
+/**
+ * Main Spring Boot application for the PDF flattening Lambda.
+ *
+ * <p>Think of this class as the starting point for the whole application:
+ * Spring Boot launches from here, wires together the repository and AWS
+ * clients, and exposes the {@code flattenPDF()} function that Lambda calls
+ * whenever an event arrives.</p>
+ */
 @SpringBootApplication
 @Slf4j
 public class DigitalPdfFlattenXfaApplication {
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private final SQSService sqsService;
+    private final EmailInfoRepository emailInfoRepository;
 
-    public DigitalPdfFlattenXfaApplication(SQSService sqsService) {
-        this.sqsService = sqsService;
+    public DigitalPdfFlattenXfaApplication(EmailInfoRepository emailInfoRepository) {
+        this.emailInfoRepository = emailInfoRepository;
     }
 
     public static void main(String[] args) {
@@ -33,11 +41,11 @@ public class DigitalPdfFlattenXfaApplication {
             log.info("Received input: {}", input);
 
             try {
-                // Parse the SQS event
+                // Parse the Lambda event payload
                 LambdaEvent lambdaEvent = objectMapper.readValue(input, LambdaEvent.class);
                 log.info("Parsed LambdaEvent with {} record(s)", lambdaEvent.getRecords().size());
 
-                // Process each record in the SQS message
+                // Process each record in the event
                 for (LambdaEvent.Record sqsRecord : lambdaEvent.getRecords()) {
                     log.info("Processing record with messageId: {}", sqsRecord.getMessageId());
 
@@ -57,10 +65,8 @@ public class DigitalPdfFlattenXfaApplication {
                     // Handle no attachments
                     if (ottEmailInstruction.getEmailAttachments() == null || ottEmailInstruction.getEmailAttachments().isEmpty()) {
                         log.warn("No attachments found in email from {}", ottEmailInstruction.getSender());
-                        // skip classifying and extraction and send to sqs for payment or link doc carrier
-                        log.info("Sending message to SQS queue for link doc carrier");
-                        sqsService.sendToSQS(emailInfo);
-                        // Send to SQS for to be picked up by the link doc carrier service
+                        // skip classifying and extraction and insert into DynamoDB EmailInfo table
+                        emailInfoRepository.saveEmailInfo(emailInfo);
                         continue;
                     }
 

@@ -1,19 +1,28 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
+# Settings under Globals apply to every Lambda function in this template.
 Globals:
   Function:
-    Runtime: java17
+    # Lambda now runs on Java 21 because Java 17 is deprecated for deployment.
+    Runtime: java21
     MemorySize: 512
     Timeout: 30
     Environment:
       Variables:
+        # Spring Cloud Function needs to know which Spring Boot class starts the app.
+        MAIN_CLASS: za.co.ocr.DigitalPdfFlattenXfaApplication
+        # This tells Spring Cloud Function which bean/function to invoke.
         SPRING_CLOUD_FUNCTION_DEFINITION: flattenPDF
-        AWS_SQS_URI: http://localhost:4566/000000000000/flatten-xfa-queue
+        # Local/testing DynamoDB endpoint. host.docker.internal lets the SAM runtime container reach services running on the host.
+        AWS_DYNAMODB_ENDPOINT: http://host.docker.internal:4566
+        AWS_DYNAMODB_AUTO_CREATE_TABLE: true
 
 Resources:
   FlattenXfaFunction:
     Type: AWS::Serverless::Function
     Properties:
+      # AWS calls this handler, and Spring Cloud Function routes the request to flattenPDF.
       Handler: org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest
-      CodeUri: target/digital-pdf-flatten-xfa-0.0.1-SNAPSHOT-aws.jar
+      # Point SAM at the project root so `sam build` can run Maven itself.
+      CodeUri: .

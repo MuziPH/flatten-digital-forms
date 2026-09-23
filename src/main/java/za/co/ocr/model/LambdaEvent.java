@@ -6,11 +6,22 @@ import lombok.Data;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Models the JSON payload that AWS Lambda receives from SQS.
+ *
+ * <p>The top-level event contains a list of records because one Lambda
+ * invocation may deliver multiple queue messages at once. Each nested record
+ * represents one SQS message, and the nested message-attribute class mirrors
+ * the shape of the JSON that AWS sends.</p>
+ */
 @Data
 public class LambdaEvent {
     @JsonProperty("Records")
     private List<Record> Records;
 
+    /**
+     * Represents one SQS message inside the Lambda event payload.
+     */
     @Data
     public static class Record {
         private String messageId;
@@ -25,6 +36,9 @@ public class LambdaEvent {
         private String awsRegion;
     }
 
+    /**
+     * Represents one custom message attribute attached to an SQS message.
+     */
     @Data
     public static class MessageAttribute {
         private String stringValue;

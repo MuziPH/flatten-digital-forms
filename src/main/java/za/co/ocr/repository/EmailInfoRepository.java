@@ -7,6 +7,14 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import za.co.ocr.model.EmailInfo;
 
+/**
+ * Handles saving {@link EmailInfo} objects to DynamoDB.
+ *
+ * <p>Think of this repository as the small bridge between the business code
+ * and the database. Instead of scattering DynamoDB calls throughout the app,
+ * the service code can ask this repository to persist email metadata in one
+ * place.</p>
+ */
 @Repository
 @Slf4j
 public class EmailInfoRepository {
