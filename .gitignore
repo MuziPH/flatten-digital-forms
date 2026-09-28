@@ -45,3 +45,4 @@ build/
 ### Temporary Files ###
 /test-output/
 /bpm_response.txt
+events/env-vars.json
