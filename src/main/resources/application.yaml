@@ -4,6 +4,10 @@ spring:
   cloud:
     function:
       definition: flattenPDF
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:localstack}
+  main:
+    web-application-type: none
 
 logging:
   level:
@@ -11,6 +15,10 @@ logging:
     za.co.ocr: DEBUG
 
 aws:
+  region: af-south-1
   dynamodb:
-    endpoint: ${AWS_DYNAMODB_ENDPOINT:}
-    auto-create-table: ${AWS_DYNAMODB_AUTO_CREATE_TABLE:false}
+    table-name: ${AWS_DYNAMODB_TABLE_NAME:EmailInfo}
+
+bpm:
+  url: https://esbdpu.standardbank.co.za:4060/rest/bpm/wle/v1/service/ZACOTT@createPaymentTransaction?action=start&createTask=false&parts=all
+  auth: ${BPM_AUTH:}

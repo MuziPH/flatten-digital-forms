@@ -5,60 +5,82 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import software.amazon.awssdk.auth.credentials.AnonymousCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
-import software.amazon.awssdk.awscore.client.builder.AwsClientBuilder;
+import org.springframework.context.annotation.Profile;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 import java.net.URI;
 
-/**
- * Creates the AWS clients used by the application.
- *
- * <p>This class centralizes how we build DynamoDB clients so the rest of the
- * code can just ask Spring for a ready-to-use client. It also supports a local
- * endpoint override, which is handy when running against DynamoDB Local during
- * development or tests.</p>
- */
 @Configuration
 public class ClientConfigs {
-    private static final Logger logger = LoggerFactory.getLogger(ClientConfigs.class);
     private static final Region REGION = Region.AF_SOUTH_1;
-    private final String dynamoDbEndpoint;
 
-    public ClientConfigs(@Value("${aws.dynamodb.endpoint:}") String dynamoDbEndpoint) {
-        this.dynamoDbEndpoint = dynamoDbEndpoint;
-    }
+    @Configuration
+    @Profile("localstack")
+    static class LocalstackConfig {
+        private static final Logger logger = LoggerFactory.getLogger(LocalstackConfig.class);
 
-    @Bean
-    public DynamoDbClient dynamoDbClient() {
-        logger.info("Creating DynamoDB client for region {}{}", REGION,
-                hasText(dynamoDbEndpoint) ? " using endpoint override " + dynamoDbEndpoint : " with default AWS endpoint");
-        return configureAwsClient(DynamoDbClient.builder(), dynamoDbEndpoint).build();
-    }
+        @Value("${aws.endpoint}")
+        private String endpoint;
 
-    @Bean
-    public DynamoDbEnhancedClient dynamoDbEnhancedClient(DynamoDbClient dynamoDbClient) {
-        return DynamoDbEnhancedClient.builder()
-                .dynamoDbClient(dynamoDbClient)
-                .build();
-    }
+        @Value("${aws.credentials.access-key}")
+        private String accessKey;
 
-    private <T extends AwsClientBuilder<T, ?>> T configureAwsClient(T builder, String endpoint) {
-        builder.region(REGION);
+        @Value("${aws.credentials.secret-key}")
+        private String secretKey;
 
-        if (hasText(endpoint)) {
-            return builder
-                    .endpointOverride(URI.create(endpoint))
-                    .credentialsProvider(AnonymousCredentialsProvider.create());
+        private StaticCredentialsProvider credentialsProvider() {
+            return StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey));
         }
 
-        return builder.credentialsProvider(DefaultCredentialsProvider.create());
+        @Bean
+        public DynamoDbEnhancedClient dynamoDbEnhancedClient() {
+            logger.info("Creating DynamoDB client for LocalStack at {}", endpoint);
+            return DynamoDbEnhancedClient.builder()
+                    .dynamoDbClient(DynamoDbClient.builder()
+                            .region(REGION)
+                            .endpointOverride(URI.create(endpoint))
+                            .credentialsProvider(credentialsProvider())
+                            .build())
+                    .build();
+        }
     }
 
-    private boolean hasText(String value) {
-        return value != null && !value.isBlank();
+    @Configuration
+    @Profile("local")
+    static class LocalConfig {
+        private static final Logger logger = LoggerFactory.getLogger(LocalConfig.class);
+
+        @Value("${aws.credentials.profile-name}")
+        private String profileName;
+
+        @Bean
+        public DynamoDbEnhancedClient dynamoDbEnhancedClient() {
+            logger.info("Creating DynamoDB client with AWS profile '{}'", profileName);
+            return DynamoDbEnhancedClient.builder()
+                    .dynamoDbClient(DynamoDbClient.builder()
+                            .region(REGION)
+                            .credentialsProvider(ProfileCredentialsProvider.builder().profileName(profileName).build())
+                            .build())
+                    .build();
+        }
+    }
+
+    @Configuration
+    @Profile("aws")
+    static class AwsConfig {
+        private static final Logger logger = LoggerFactory.getLogger(AwsConfig.class);
+
+        @Bean
+        public DynamoDbEnhancedClient dynamoDbEnhancedClient() {
+            logger.info("Creating DynamoDB client with default credentials (Lambda role)");
+            return DynamoDbEnhancedClient.builder()
+                    .dynamoDbClient(DynamoDbClient.builder().region(REGION).build())
+                    .build();
+        }
     }
 }

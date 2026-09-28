@@ -1,0 +1,5 @@
+aws:
+  credentials:
+    profile-name: ${AWS_PROFILE:default}
+  dynamodb:
+    auto-create-table: false

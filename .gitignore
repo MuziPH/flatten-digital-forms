@@ -31,4 +31,17 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Environment Variables & Secrets ###
 /.env
+/events/env-vars.json
+.env.local
+.env.*.local
+/tmp/
+*.swp
+*.swo
+*~
+
+### Temporary Files ###
+/test-output/
+/bpm_response.txt

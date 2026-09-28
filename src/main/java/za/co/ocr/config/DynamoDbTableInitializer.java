@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeDefinition;
 import software.amazon.awssdk.services.dynamodb.model.BillingMode;
@@ -35,9 +36,9 @@ public class DynamoDbTableInitializer {
     private static final String SORT_KEY = "emailReceivedOn";
 
     @Bean
-    public ApplicationRunner emailInfoTableInitializer(DynamoDbClient dynamoDbClient,
-                                                       @Value("${aws.dynamodb.auto-create-table:false}") boolean autoCreateTable,
-                                                       @Value("${aws.dynamodb.endpoint:}") String dynamoDbEndpoint) {
+    public ApplicationRunner emailInfoTableInitializer(DynamoDbEnhancedClient dynamoDbEnhancedClient,
+                                                       @Value("${aws.dynamodb.auto-create-table:false}") boolean autoCreateTable) {
+        DynamoDbClient dynamoDbClient = (DynamoDbClient) dynamoDbEnhancedClient.dynamoDbClient();
         return args -> {
             if (!autoCreateTable) {
                 log.info("DynamoDB table auto-creation disabled; expecting table {} to already exist", TABLE_NAME);
@@ -47,16 +48,16 @@ public class DynamoDbTableInitializer {
             try {
                 TableDescription table = dynamoDbClient.describeTable(DescribeTableRequest.builder().tableName(TABLE_NAME).build()).table();
                 if (hasExpectedSchema(table)) {
-                    log.info("DynamoDB table {} already exists at {} with the expected schema", TABLE_NAME, dynamoDbEndpoint);
+                    log.info("DynamoDB table {} already exists with the expected schema", TABLE_NAME);
                     return;
                 }
 
-                log.warn("DynamoDB table {} at {} has an incompatible schema; recreating it for local testing", TABLE_NAME, dynamoDbEndpoint);
+                log.warn("DynamoDB table {} has an incompatible schema; recreating it for local testing", TABLE_NAME);
                 dynamoDbClient.deleteTable(DeleteTableRequest.builder().tableName(TABLE_NAME).build());
                 waitForTableDeletion(dynamoDbClient);
-                createEmailInfoTable(dynamoDbClient, dynamoDbEndpoint);
+                createEmailInfoTable(dynamoDbClient);
             } catch (ResourceNotFoundException ex) {
-                createEmailInfoTable(dynamoDbClient, dynamoDbEndpoint);
+                createEmailInfoTable(dynamoDbClient);
             }
         };
     }
@@ -87,8 +88,8 @@ public class DynamoDbTableInitializer {
         throw new IllegalStateException("Timed out waiting for DynamoDB table " + TABLE_NAME + " to be deleted");
     }
 
-    private void createEmailInfoTable(DynamoDbClient dynamoDbClient, String dynamoDbEndpoint) {
-        log.info("Creating DynamoDB table {} at {}", TABLE_NAME, dynamoDbEndpoint);
+    private void createEmailInfoTable(DynamoDbClient dynamoDbClient) {
+        log.info("Creating DynamoDB table {}", TABLE_NAME);
         dynamoDbClient.createTable(CreateTableRequest.builder()
                 .tableName(TABLE_NAME)
                 .billingMode(BillingMode.PAY_PER_REQUEST)

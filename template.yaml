@@ -15,8 +15,9 @@ Globals:
         # This tells Spring Cloud Function which bean/function to invoke.
         SPRING_CLOUD_FUNCTION_DEFINITION: flattenPDF
         # Local/testing DynamoDB endpoint. host.docker.internal lets the SAM runtime container reach services running on the host.
-        AWS_DYNAMODB_ENDPOINT: http://host.docker.internal:4566
-        AWS_DYNAMODB_AUTO_CREATE_TABLE: true
+        AWS_ENDPOINT: http://host.docker.internal:4566
+        SPRING_PROFILES_ACTIVE: localstack
+        BPM_AUTH: ${BPM_AUTH}
 
 Resources:
   FlattenXfaFunction:

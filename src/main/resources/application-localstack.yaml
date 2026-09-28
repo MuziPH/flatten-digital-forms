@@ -1,0 +1,7 @@
+aws:
+  endpoint: ${AWS_ENDPOINT:http://localhost:4566}
+  credentials:
+    access-key: test
+    secret-key: test
+  dynamodb:
+    auto-create-table: true

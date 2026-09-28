@@ -5,11 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import za.co.ocr.dto.CreatePaymentTransactionResponse;
 import za.co.ocr.model.EmailInfo;
 import za.co.ocr.model.LambdaEvent;
 import za.co.ocr.model.OTTEmailInstruction;
 import za.co.ocr.repository.EmailInfoRepository;
+import za.co.ocr.service.LinkDocCarrierService;
 
+import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
@@ -25,9 +28,11 @@ import java.util.function.Consumer;
 public class DigitalPdfFlattenXfaApplication {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private final EmailInfoRepository emailInfoRepository;
+    private final LinkDocCarrierService linkDocCarrierService;
 
-    public DigitalPdfFlattenXfaApplication(EmailInfoRepository emailInfoRepository) {
+    public DigitalPdfFlattenXfaApplication(EmailInfoRepository emailInfoRepository, LinkDocCarrierService linkDocCarrierService) {
         this.emailInfoRepository = emailInfoRepository;
+        this.linkDocCarrierService = linkDocCarrierService;
     }
 
     public static void main(String[] args) {
@@ -67,6 +72,11 @@ public class DigitalPdfFlattenXfaApplication {
                         log.warn("No attachments found in email from {}", ottEmailInstruction.getSender());
                         // skip classifying and extraction and insert into DynamoDB EmailInfo table
                         emailInfoRepository.saveEmailInfo(emailInfo);
+                        // send to BAW link doc carrier
+                        CreatePaymentTransactionResponse paymentTransaction = linkDocCarrierService.createPaymentTransaction(UUID.randomUUID().toString(), emailInfo);
+                        log.info("send to BAW link doc carrier response: {}", paymentTransaction.getStatus());
+                        // log workflow reference number
+                        log.info("workflowReferenceNumber: {}", paymentTransaction.getData().getData().getWorkflowReferenceNumber());
                         continue;
                     }
 
