@@ -73,10 +73,10 @@ public class DigitalPdfFlattenXfaApplication {
                         // skip classifying and extraction and insert into DynamoDB EmailInfo table
                         emailInfoRepository.saveEmailInfo(emailInfo);
                         // send to BAW link doc carrier
-                        CreatePaymentTransactionResponse paymentTransaction = linkDocCarrierService.createPaymentTransaction(UUID.randomUUID().toString(), emailInfo);
-                        log.info("send to BAW link doc carrier response: {}", paymentTransaction.getStatus());
+                       // CreatePaymentTransactionResponse paymentTransaction = linkDocCarrierService.createPaymentTransaction(UUID.randomUUID().toString(), emailInfo);
+                      //  log.info("send to BAW link doc carrier response: {}", paymentTransaction.getStatus());
                         // log workflow reference number
-                        log.info("workflowReferenceNumber: {}", paymentTransaction.getData().getData().getWorkflowReferenceNumber());
+                     //   log.info("workflowReferenceNumber: {}", paymentTransaction.getData().getData().getWorkflowReferenceNumber());
                         continue;
                     }
 

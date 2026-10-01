@@ -1,24 +1,37 @@
 spring:
   application:
+    # This is the name Spring uses for the running application in logs and metrics.
     name: digital-pdf-flatten-xfa
   cloud:
     function:
+      # Only expose the flattenPDF function as the Lambda entry point.
       definition: flattenPDF
-  profiles:
-    active: ${SPRING_PROFILES_ACTIVE:localstack}
+      scan:
+        # Turn off automatic function scanning so Spring does not try to expose
+        # extra functions that we do not intend to run.
+        enabled: false
   main:
+    # This is not a web server application; SAM/Lambda will call the function directly.
     web-application-type: none
 
 logging:
   level:
+    # Keep the root logger at INFO so normal startup messages are visible.
     root: INFO
+    # Increase application logging to DEBUG so it is easier to troubleshoot this package.
     za.co.ocr: DEBUG
 
 aws:
+  # Default AWS region for the DynamoDB client used by the app.
   region: af-south-1
   dynamodb:
+    # Name of the DynamoDB table used by the application.
     table-name: ${AWS_DYNAMODB_TABLE_NAME:EmailInfo}
+    # Local stack can auto-create the table, but deployed AWS should not.
+    auto-create-table: false
 
 bpm:
+  # Base URL for the downstream BPM service this app calls.
   url: https://esbdpu.standardbank.co.za:4060/rest/bpm/wle/v1/service/ZACOTT@createPaymentTransaction?action=start&createTask=false&parts=all
+  # The auth header value is injected from the environment.
   auth: ${BPM_AUTH:}

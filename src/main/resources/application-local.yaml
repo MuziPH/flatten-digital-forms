@@ -1,5 +1,3 @@
 aws:
   credentials:
-    profile-name: ${AWS_PROFILE:default}
-  dynamodb:
-    auto-create-table: false
+    profile-name: ${AWS_PROFILE:muzi-mac-profile}

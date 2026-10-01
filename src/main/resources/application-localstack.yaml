@@ -1,7 +1,10 @@
 aws:
-  endpoint: ${AWS_ENDPOINT:http://localhost:4566}
+  # LocalStack listens on the host machine, so the container reaches it through host.docker.internal.
+  endpoint: http://host.docker.internal:4566
   credentials:
+    # LocalStack does not use real AWS credentials, so we provide test values.
     access-key: test
     secret-key: test
   dynamodb:
+    # LocalStack can create the table automatically during local development.
     auto-create-table: true

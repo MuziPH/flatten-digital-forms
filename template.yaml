@@ -4,26 +4,40 @@ Transform: AWS::Serverless-2016-10-31
 # Settings under Globals apply to every Lambda function in this template.
 Globals:
   Function:
-    # Lambda now runs on Java 21 because Java 17 is deprecated for deployment.
+    # This is the Java runtime that AWS Lambda will use for the function.
+    # We keep it at Java 21 so the code runs on a modern supported runtime.
     Runtime: java21
+    # Memory controls how much RAM the function gets when it runs in AWS.
     MemorySize: 512
+    # Timeout is the maximum number of seconds the Lambda is allowed to run.
     Timeout: 30
     Environment:
       Variables:
-        # Spring Cloud Function needs to know which Spring Boot class starts the app.
+        # Spring Cloud Function starts your application through this Spring Boot class.
+        # Think of this as the main entry point for the Lambda JVM process.
         MAIN_CLASS: za.co.ocr.DigitalPdfFlattenXfaApplication
-        # This tells Spring Cloud Function which bean/function to invoke.
+        # This tells Spring Cloud Function which bean name should handle requests.
         SPRING_CLOUD_FUNCTION_DEFINITION: flattenPDF
-        # Local/testing DynamoDB endpoint. host.docker.internal lets the SAM runtime container reach services running on the host.
-        AWS_ENDPOINT: http://host.docker.internal:4566
-        SPRING_PROFILES_ACTIVE: localstack
+        # Deployed Lambdas should use the AWS profile by default.
+        # Local SAM runs can still override this with a local env file.
+        SPRING_PROFILES_ACTIVE: aws
+        # The BPM auth value is injected at deploy/run time instead of being hardcoded here.
         BPM_AUTH: ${BPM_AUTH}
 
 Resources:
   FlattenXfaFunction:
     Type: AWS::Serverless::Function
     Properties:
-      # AWS calls this handler, and Spring Cloud Function routes the request to flattenPDF.
+      # SAM invokes this handler, which delegates the request into Spring Cloud Function.
       Handler: org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest
-      # Point SAM at the project root so `sam build` can run Maven itself.
+      # The project root contains the Maven build files, so SAM can package the app from here.
       CodeUri: .
+      Events:
+        FlattenApi:
+          # This creates an HTTP endpoint for local testing and API Gateway in AWS.
+          Type: Api
+          Properties:
+            # The route path that clients call.
+            Path: /flatten
+            # Only accept POST requests for this endpoint.
+            Method: POST
