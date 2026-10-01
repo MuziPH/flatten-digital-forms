@@ -16,7 +16,7 @@ Globals:
         # Spring Cloud Function starts your application through this Spring Boot class.
         # Think of this as the main entry point for the Lambda JVM process.
         MAIN_CLASS: za.co.ocr.DigitalPdfFlattenXfaApplication
-        # This tells Spring Cloud Function which bean name should handle requests.
+        # This tells Spring Cloud Function which bean name should handle SQS messages.
         SPRING_CLOUD_FUNCTION_DEFINITION: flattenPDF
         # Deployed Lambdas should use the AWS profile by default.
         # Local SAM runs can still override this with a local env file.
@@ -25,19 +25,46 @@ Globals:
         BPM_AUTH: ${BPM_AUTH}
 
 Resources:
+  # The queue that feeds messages into the Lambda.
+  EmailInfoQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: EmailInfoQueue
+
   FlattenXfaFunction:
     Type: AWS::Serverless::Function
     Properties:
-      # SAM invokes this handler, which delegates the request into Spring Cloud Function.
+      # SAM invokes this handler, which delegates the SQS message into Spring Cloud Function.
       Handler: org.springframework.cloud.function.adapter.aws.FunctionInvoker::handleRequest
       # The project root contains the Maven build files, so SAM can package the app from here.
       CodeUri: .
+      # IAM policies grant the Lambda permission to access AWS resources.
+      # This Lambda needs permissions to:
+      # 1. Read SQS messages from the EmailInfoQueue
+      # 2. Read and write to the EmailInfo DynamoDB table
+      # 3. Delete messages from SQS after successful processing
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            # SQS permissions: receive and delete messages
+            - Effect: Allow
+              Action:
+                - sqs:ReceiveMessage
+                - sqs:DeleteMessage
+                - sqs:GetQueueAttributes
+              Resource: !GetAtt EmailInfoQueue.Arn
+            # DynamoDB permissions: read and write EmailInfo records
+            - Effect: Allow
+              Action:
+                - dynamodb:PutItem
+                - dynamodb:GetItem
+                - dynamodb:UpdateItem
+                - dynamodb:Query
+              Resource: arn:aws:dynamodb:af-south-1:190249219972:table/EmailInfo
       Events:
-        FlattenApi:
-          # This creates an HTTP endpoint for local testing and API Gateway in AWS.
-          Type: Api
+        EmailQueueEvent:
+          # This wires the Lambda to the SQS queue defined above.
+          Type: SQS
           Properties:
-            # The route path that clients call.
-            Path: /flatten
-            # Only accept POST requests for this endpoint.
-            Method: POST
+            Queue: !GetAtt EmailInfoQueue.Arn
+            BatchSize: 1

@@ -3,7 +3,7 @@
     {
       "messageId": "test-dynamodb-insert-001",
       "receiptHandle": "test-receipt-handle-for-sam-local",
-      "body": "{\"from\":\"recipient@example.com\",\"sender\":\"sender@example.com\",\"subject\":\"SAM local DynamoDB insert test\",\"receivedDateTime\":\"2026-09-21T10:15:30Z\",\"messageId\":\"email-msg-001\",\"emailAttachments\":[]}",
+      "body": "{\"from\":\"muzi.phage@standardbank.co.za\",\"sender\":\"muzi.phage@standardbank.co.za\",\"subject\":\"Test local aws\",\"receivedDateTime\":\"2026-10-01T10:15:30Z\",\"messageId\":\"email-msg-001\",\"emailAttachments\":[]}",
       "attributes": {
         "ApproximateReceiveCount": "1",
         "SentTimestamp": "1799988930000",

@@ -1,0 +1,20 @@
+# AWS Lambda Deployment Configuration
+#
+# This profile is active when the Lambda runs in AWS (SPRING_PROFILES_ACTIVE=aws).
+# It ensures the application uses the Lambda execution role's credentials (default chain)
+# and does NOT use any hardcoded or test credentials.
+#
+# The Lambda execution role must have permissions to:
+# - dynamodb:PutItem
+# - dynamodb:GetItem
+# - dynamodb:UpdateItem
+# - dynamodb:Query
+# on the EmailInfo table (arn:aws:dynamodb:af-south-1:190249219972:table/EmailInfo)
+
+aws:
+  # Leave endpoint and credentials blank to use AWS Lambda's default credentials chain.
+  # The Lambda execution role will provide temporary security credentials automatically.
+  dynamodb:
+    # In AWS, auto-create-table is false because the table must already exist.
+    auto-create-table: false
+

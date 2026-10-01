@@ -32,8 +32,12 @@ public class EmailInfoRepository {
         log.info("saving email info {}", emailInfo);
         try {
             emailInfoTable.putItem(emailInfo);
-        } catch (RuntimeException e) {
-            log.error("Error saving email info to DynamoDB: {}", e.getMessage());
+            log.info("Successfully saved email info for sender: {}", emailInfo.getEmailSender());
+        } catch (Exception e) {
+            log.error("Error saving email info to DynamoDB: {} | Cause: {} | Message: {}",
+                e.getClass().getName(), e.getCause(), e.getMessage(), e);
+            // Re-throw so the Lambda handler can see the failure
+            throw new RuntimeException("Failed to save email info to DynamoDB", e);
         }
     }
 }

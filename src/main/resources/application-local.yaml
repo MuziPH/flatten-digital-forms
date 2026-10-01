@@ -1,3 +1,18 @@
+spring:
+  cloud:
+    function:
+      # Clear the default function definition in local HTTP mode so the request
+      # path must name the actual bean to invoke, which keeps local testing to a
+      # single explicit endpoint: /flattenPDF
+      definition: ''
+  main:
+    # Local AWS development uses an embedded servlet container so the function
+    # can be invoked over HTTP while still using the real AWS profile.
+    web-application-type: servlet
+
+server:
+  port: 8080
+
 aws:
   credentials:
     profile-name: ${AWS_PROFILE:muzi-mac-profile}
